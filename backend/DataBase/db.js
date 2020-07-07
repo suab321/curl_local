@@ -33,6 +33,8 @@ const UserSchema = new mongoose.Schema({
     maxDailyStreak:{type:Number,default:0},
     lastPlayed:{type:Number,default:0},
     social_Id:String,
+    zone:{type:String, default:""},
+    playedSudoku:{type:Number,default:-1},
     photo:{type:String,default:'https://img.favpng.com/23/0/3/computer-icons-user-profile-clip-art-portable-network-graphics-png-favpng-YEj6NsJygkt6nFTNgiXg9fg9w.jpg'}
 });
 

@@ -11,39 +11,45 @@ class Board extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            matrix_data:[],
+            matrix_data : [],
             board_size : 5,            
-            solved:false
+            solved:false,
+            all_played:false
         }
         this.clicked = this.clicked.bind(this);
         this.submit = this.submit.bind(this);
         this.my_matrix_data = [];
-        console.log(cookie.load('token'));
     }
 
     componentDidMount(){
+        console.log(this.props);
         axios.get(`${backURL}/api/get_sudoku`).then(res=>{
-            const random_index = Math.floor(Math.random() * (res.data.length-1 + 1));
-            this.my_matrix_data = res.data[random_index].data;
-            this.setState({matrix_data:res.data[random_index].data,board_size:res.data[random_index].size});
+            let random_index = res.data.length-1;
+            if(res.data.length-1 > this.props.user.playedSudoku){
+                random_index = this.props.user.playedSudoku+1;
+                this.my_matrix_data = res.data[random_index].data;
+                this.setState({matrix_data:res.data[random_index].data,board_size:res.data[random_index].size});
+            }
+            else{
+                this.setState({all_played:true})
+            }
         });
     }
 
     async submit(){
         if(abhi(this.my_matrix_data, this.state.board_size)){
             this.props.updateScore();
+            this.setState({solved:true});
         }
-        
     }
 
     clicked(event){
         console.log(event.target.id);
-
         this.my_matrix_data[Number(event.target.id)] = Number(document.getElementById(event.target.id).value);
     }
 
     render(){
-        console.log(this.state.matrix_data);
+        console.log(this.state)
         let row=[];
         let col=[];
         for(let i=0;i<this.state.board_size;i++){
@@ -65,16 +71,22 @@ class Board extends React.Component{
         });
         if(this.state.matrix_data.length > 0){
             this.state.matrix_data.forEach((value,index)=>{
-                console.log(index,value);
                 if(value!==null){
                     document.getElementById(String(index)).value = value;
                     document.getElementById(String(index)).readOnly = true;
                 }
             });
         }
+        if(this.state.all_played)
+            return(
+                <div style={{textAlign:'center'}}>
+                    <h1>Well done on solving every sudoku! We will upload new ones soon!!</h1>
+                </div>
+            )
         if(this.state.solved){
             return(
-                <Redirect to="/profile" />
+                <div style={{textAlign:'center'}}>
+                </div>
             )
         }
         else{

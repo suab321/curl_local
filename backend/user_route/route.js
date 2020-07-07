@@ -22,6 +22,29 @@ async function verify_token(req,res,next){
     }
 }
 
+router.get('/get', async(req,res)=>{
+    console.log(req.session.user);
+    if(req.session.user === undefined || req.session.user === null)
+        res.status(400).json({});
+    else{
+        try{
+            const token = await createToken(req.session.user);
+            res.status(200).json(token);
+        }catch(err){
+            console.log(err);
+            res.status(400).json(err);
+        }
+    }
+        
+});
+router.get("/logout",(req,res)=>{
+    console.log(req.session.user);
+    if(req.session.user !== undefined || req.session.user !== null)
+        req.session.user = null;
+    res.status(200).json("ok");
+})
+
+
 router.post("/post_sudoku", async(req,res)=>{
     try{
         const data = new Sudoku;
@@ -48,7 +71,7 @@ router.get('/update_score',[verify_token] ,async(req,res)=>{
     try{
         const user = await User.findById({_id:req.user_info.data._id});
         if(user.lastPlayed === 0){
-            await User.findByIdAndUpdate({_id:req.user_info.data._id},{lastPlayed:Date.now(), dailyStreak:1, maxDailyStreak:1, score:user.score+1});
+            await User.findByIdAndUpdate({_id:req.user_info.data._id},{lastPlayed:Date.now(), dailyStreak:1, maxDailyStreak:1, score:user.score+1, playedSudoku:0});
             res.status(200).json("ok");
         }
         else{
@@ -62,7 +85,9 @@ router.get('/update_score',[verify_token] ,async(req,res)=>{
                 if(dailyStreak>maxDailyStreak)
                     maxDailyStreak=dailyStreak;
             }
-            await User.findByIdAndUpdate({_id:req.user_info.data._id}, {lastPlayed:Date.now(), dailyStreak:dailyStreak, maxDailyStreak:maxDailyStreak , score:user.score+1,});
+            else
+                dailyStreak=0;
+            await User.findByIdAndUpdate({_id:req.user_info.data._id}, {lastPlayed:Date.now(), dailyStreak:dailyStreak, maxDailyStreak:maxDailyStreak , score:user.score+1,playedSudoku:user.playedSudoku+1});
             res.status(200).json("ok");
         }
     }catch(err){
@@ -71,9 +96,18 @@ router.get('/update_score',[verify_token] ,async(req,res)=>{
     }
 });
 
-router.get("/all_user",[verify_token], async(req,res)=>{
+router.get("/update_zone", [verify_token], async(req,res)=>{
     try{
-        const data = await User.find({},{_id:false,social_Id:false});
+        console.log(req.query);
+        await findByIdAndUpdate({_id:req.user_info._id},{zone:req.query.zone});
+    }catch(err){
+        res.status(400).json(err);
+    }
+});
+
+router.get("/all_user", [verify_token], async(req,res)=>{
+    try{
+        const data = await User.find({},{social_Id:false});
         res.status(200).json(data);
     }catch(err){
         res.status(400).json(err);
@@ -82,7 +116,7 @@ router.get("/all_user",[verify_token], async(req,res)=>{
 
 router.get("/get_user", [verify_token], async(req,res)=>{
     try{
-        const data = await User.findById({_id:req.user_info.data._id},{_id:false,social_Id:false});
+        const data = await User.findById({_id:req.user_info.data._id},{social_Id:false});
         res.status(200).json(data);
     }catch(err){
         res.status(400).json(err);

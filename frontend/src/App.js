@@ -20,13 +20,20 @@ class App extends React.Component{
       isLogin : false,
       token:null
     }
+    this.logout = this.logout.bind(this);
   }
 
   componentDidMount(){
-    Axios.get(`${backURL}/get`,{withCredentials:true}).then(res=>{
+    Axios.get(`${backURL}/api/get`,{withCredentials:true}).then(res=>{
       cookie.save("token",res.data,{path:"/"});
       this.setState({isLogin:true});
     });
+  }
+
+  logout(){
+    cookie.save('token','');
+    Axios.get(`${backURL}/api/logout`,{withCredentials:true});
+    this.setState({isLogin:false});
   }
 
   render(){
@@ -38,11 +45,12 @@ class App extends React.Component{
               <Link to='/game'><NavItem>Games</NavItem></Link>
               <Link to="/dashboard"><NavItem>Dashboard</NavItem></Link>
               <Link to="/profile"><NavItem>Profile</NavItem></Link>
+              <NavItem onClick={this.logout}>Logout</NavItem>
             </Navbar>
             <Route exact strict path="/game" component={Game}/>
             <Route exact strict path="/dashboard" component={Dashboard}/>
             <Route exact strict path="/profile" component={Profile}/>
-            
+            <Route exact strict path="/app" component={App}/>
           </switch>
         </Router>
       )

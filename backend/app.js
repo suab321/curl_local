@@ -9,8 +9,7 @@ const cors = require('cors');
 const passport = require("passport");
 
 
-const {User,Sudoku,streamRoute} = require('./DataBase/db');
-const {decodeToken,createToken} = require('./JWT/jwt');
+const {streamRoute} = require('./DataBase/db');
 const {authentication} = require('./authentication/route');
 const {api} = require("./user_route/route");
 require('./authentication/config');
@@ -47,24 +46,6 @@ app.use("/authentication", authentication);
 app.use("/api", api);
 app.use("/stream", streamRoute)
 
-
-app.get('/get', async(req,res)=>{
-    if(req.session.user === undefined || req.session.user === null)
-        res.status(400).json({});
-    else{
-        try{
-            const token = await createToken(req.session.user);
-            res.status(200).json(token);
-        }catch(err){
-            console.log(err);
-            res.status(400).json(err);
-        }
-    }
-        
-})
-app.get('/logout',(req,res)=>{
-    req.session.user = null;
-})
 
 
 app.listen(process.env.PORT || 3002);
