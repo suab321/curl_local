@@ -2,7 +2,6 @@ import React from 'react';
 import Axios from 'axios';
 import {backURL} from '../back_url.js';
 import cookie from 'react-cookies';
-import { FormControl,FormLabel,FormControlLabel,RadioGroup, Radio } from 'react-materialize';
 
 class Profile extends React.Component{
     constructor(props){
@@ -18,9 +17,15 @@ class Profile extends React.Component{
         this.upload = this.upload.bind(this);
         this.selected = this.selected.bind(this);
         this.fetchData = this.fetchData.bind(this);
+        this.updateZone = this.updateZone.bind(this);
     }
 
     async upload(){
+        console.log(this.state.file)
+        if(this.state.file === null){
+            alert("Select a image file");
+            return;
+        }
         let formdata=new FormData();
         formdata.append('file',this.state.file);
         Axios.post(`${backURL}/api/upload`,formdata,{headers:{Authorization: `Bearer ${cookie.load('token')}`}}).then(res=>{
@@ -28,13 +33,19 @@ class Profile extends React.Component{
             this.fetchData();
         })
     }
+
+    async updateZone(){
+        console.log(document.getElementById("zone").value);
+        await Axios.get(`${backURL}/api/update_zone?zone=${document.getElementById("zone").value}`,{headers:{Authorization: `Bearer ${cookie.load('token')}`}});
+        alert("zone is updated");
+        this.setState({zone:false});
+    }
     
     selected(event){
         let file = event.target.files[0];
         let name = file.name.split('.');
         name = name[name.length-1];
         if(name === 'jpeg' || name === 'png' || name === 'gif' || name === "jpg"){
-            console.log(name);
             this.setState({file:event.target.files[0]});
         }
         else
@@ -55,7 +66,7 @@ class Profile extends React.Component{
     }
 
     render(){
-        console.log(this.state.zone);
+        // console.log(this.state.zone);
         if(this.state.wait){
             return(
                 <div style={{textAlign:'center'}}>
@@ -80,6 +91,16 @@ class Profile extends React.Component{
                             <button onClick={this.upload}>Upload</button>
                         </div>
                     </div><br/><br/>
+                    <div hidden={!this.state.zone}>
+                        <h3>Select Your Zone</h3>
+                        <select style={{display:'block',width:'10%',marginLeft:'40%'}} name="zone" id="zone">
+                        <option value="North">North</option>
+                        <option value="South">South</option>
+                        <option value="West">West</option>
+                        <option value="East">East</option>
+                        </select>
+                        <button onClick={this.updateZone}>Update</button>
+                    </div>
             </div>
         )
       }

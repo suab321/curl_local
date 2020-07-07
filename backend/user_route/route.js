@@ -99,8 +99,10 @@ router.get('/update_score',[verify_token] ,async(req,res)=>{
 router.get("/update_zone", [verify_token], async(req,res)=>{
     try{
         console.log(req.query);
-        await findByIdAndUpdate({_id:req.user_info._id},{zone:req.query.zone});
+        await User.findByIdAndUpdate({_id:req.user_info.data._id},{zone:req.query.zone});
+        res.status(200).json("ok");
     }catch(err){
+        console.log(err);
         res.status(400).json(err);
     }
 });
@@ -110,6 +112,7 @@ router.get("/all_user", [verify_token], async(req,res)=>{
         const data = await User.find({},{social_Id:false});
         res.status(200).json(data);
     }catch(err){
+        console.log(err);
         res.status(400).json(err);
     }
 });
@@ -119,6 +122,7 @@ router.get("/get_user", [verify_token], async(req,res)=>{
         const data = await User.findById({_id:req.user_info.data._id},{social_Id:false});
         res.status(200).json(data);
     }catch(err){
+        console.log(err);
         res.status(400).json(err);
     }
 });
@@ -127,14 +131,17 @@ router.get("/get_user", [verify_token], async(req,res)=>{
 
 router.post("/upload", [verify_token], (req,res)=>{
     uploadEngine(req,res,async(err)=>{
-        if(err)
+        if(err){
+            console.log(err);
             res.status(400).json("error");
+        }
         else{
             try{
                 let userPhoto = `${process.env.back_url}/stream/${req.file.filename}`
                 await User.findByIdAndUpdate({_id:req.user_info.data._id},{photo:userPhoto});
                 res.status(200).json("ok");
             }catch(err){
+                console.log(err);
                 res.status(400).json(err);
             }
         }

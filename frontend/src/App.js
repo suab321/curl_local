@@ -18,7 +18,7 @@ class App extends React.Component{
     super();
     this.state={
       isLogin : false,
-      token:null
+      wait:true
     }
     this.logout = this.logout.bind(this);
   }
@@ -26,8 +26,10 @@ class App extends React.Component{
   componentDidMount(){
     Axios.get(`${backURL}/api/get`,{withCredentials:true}).then(res=>{
       cookie.save("token",res.data,{path:"/"});
-      this.setState({isLogin:true});
-    });
+      this.setState({isLogin:true,wait:false});
+    }).catch(err=>{
+      this.setState({wait:false})
+    })
   }
 
   logout(){
@@ -37,6 +39,13 @@ class App extends React.Component{
   }
 
   render(){
+    if(this.state.wait){
+      return(
+        <div style={{textAlign:'center'}}>
+            <h1>Please Wait</h1>
+        </div>
+    )
+    }
     if(this.state.isLogin){
       return(
         <Router>
