@@ -11,6 +11,7 @@ class Game extends React.Component{
             user:{},
             willPlay:false,
             matrix_data:[],
+            wait:true
         }
     }
 
@@ -25,10 +26,17 @@ class Game extends React.Component{
             let willPlay = false;
             if(date2.getDay()>date1.getDay() || date2.getMonth()>date1.getMonth || date2.getFullYear()>date1.getFullYear())
                 willPlay = true;
-            this.setState({user:res.data,willPlay:willPlay});
+            this.setState({user:res.data,willPlay:willPlay,wait:false});
         });
     }
     render(){
+        if(this.state.wait){
+            return(
+                <div style={{textAlign:'center'}}>
+                    <h1>Please Wait</h1>
+                </div>
+            )
+        }
         if(this.state.willPlay){
             return(
                 <div style={{paddingTop:"10px",textAlign:'center'}}>

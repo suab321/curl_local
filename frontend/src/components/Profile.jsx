@@ -1,8 +1,8 @@
-import React, { useReducer } from 'react';
+import React from 'react';
 import Axios from 'axios';
 import {backURL} from '../back_url.js';
 import cookie from 'react-cookies';
-import { Dropdown,Button,ButtonGroup } from 'react-materialize';
+import { FormControl,FormLabel,FormControlLabel,RadioGroup, Radio } from 'react-materialize';
 
 class Profile extends React.Component{
     constructor(props){
@@ -12,7 +12,8 @@ class Profile extends React.Component{
             user:{},
             uploadPhoto:false,
             file:null,
-            zone:false
+            zone:false,
+            wait:true
         }
         this.upload = this.upload.bind(this);
         this.selected = this.selected.bind(this);
@@ -45,7 +46,7 @@ class Profile extends React.Component{
             let zone=false;
             if(res.data.zone === "")
                 zone=true;
-            this.setState({user:res.data,uploadPhoto:false,zone:zone});
+            this.setState({user:res.data,uploadPhoto:false,zone:zone,wait:false});
         });
     }
 
@@ -55,33 +56,33 @@ class Profile extends React.Component{
 
     render(){
         console.log(this.state.zone);
-       return(
-           <div style={{textAlign:'center', marginTop:'10px'}}>
-               <div>
-                <img style={{background:'transparent'}} src={`${this.state.user.photo}`} height="200px" width="200px"/><br/>
-               <h3>{this.state.user.name}</h3><br/>
-                <h3>Score : {this.state.user.score}</h3>
-                <h3>CurrentDailyStreak : {this.state.user.dailyStreak}</h3>
-                <h3>MaxWinningStream : {this.state.user.maxDailyStreak}</h3>
-                <button onClick={()=>{this.setState({uploadPhoto:!this.state.uploadPhoto})}}>Upload New Photo</button>
+        if(this.state.wait){
+            return(
+                <div style={{textAlign:'center'}}>
+                    <h1>Please Wait</h1>
                 </div>
-                <div hidden={!this.state.uploadPhoto}>
-                    <div>
-                        <input onChange={this.selected} type="file"/>
-                        <button onClick={this.upload}>Upload</button>
+            )
+        }
+        else{
+        return(
+            <div style={{textAlign:'center', marginTop:'10px'}}>
+                <div>
+                    <img style={{background:'transparent'}} src={`${this.state.user.photo}`} height="200px" width="200px"/><br/>
+                <h3>{this.state.user.name}</h3><br/>
+                    <h3>Score : {this.state.user.score}</h3>
+                    <h3>CurrentDailyStreak : {this.state.user.dailyStreak}</h3>
+                    <h3>MaxWinningStream : {this.state.user.maxDailyStreak}</h3>
+                    <button onClick={()=>{this.setState({uploadPhoto:!this.state.uploadPhoto})}}>Upload New Photo</button>
                     </div>
-                </div><br/><br/>
-                <div hidden={!this.state.zone}>
-                    <h1>wkdh</h1>
-                <select id="cars">
-                <option value="volvo">Volvo</option>
-                <option value="saab">Saab</option>
-                <option value="fiat">Fiat</option>
-                <option value="audi">Audi</option>
-                </select>
-                </div>
-           </div>
-       )
+                    <div hidden={!this.state.uploadPhoto}>
+                        <div>
+                            <input onChange={this.selected} type="file"/>
+                            <button onClick={this.upload}>Upload</button>
+                        </div>
+                    </div><br/><br/>
+            </div>
+        )
+      }
     }
 }
 

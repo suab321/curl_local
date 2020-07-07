@@ -11,6 +11,7 @@ class Dashboard extends React.Component{
             users:[],
             lead_obj:{},
             me:{},
+            wait:true
         }
         this.getLeader = this.getLeader.bind(this);
         this.sortData = this.sortData.bind(this);
@@ -49,7 +50,7 @@ class Dashboard extends React.Component{
             this.setState({redirect:true})
         })
         Axios.get(`${backURL}/api/all_user`, {headers:{Authorization: `Bearer ${cookie.load('token')}`}}).then(res=>{
-            this.setState({users:res.data});
+            this.setState({users:res.data,wait:false});
             this.getLeader();
         }).catch(err=>{
             this.setState({redirect:true});
@@ -81,20 +82,28 @@ class Dashboard extends React.Component{
                     </div>
                 )
             });
-
-            return(
-            <div style={{textAlign:"center"}}>
-                <div>
-                    <h1 style={{color:'red'}}>Leader Board</h1>
-                    <h2 style={{color:'green'}} hidden={!you_topper}>Congrats you are a leader in your zone</h2>
-                    <img src={`${this.state.lead_obj.photo}`} height='100px' width='100px'/>
-                    <h3>{`${this.state.lead_obj.name}`}</h3>
-                    <h3>{`${this.state.lead_obj.score}`}</h3>
-                </div>
-                <h1 style={{color:'red'}}>Others</h1>
-                {UI}
-            </div>
-        ) 
+            if(this.state.wait){
+                return(
+                    <div style={{textAlign:'center'}}>
+                        <h1>Please Wait</h1>
+                    </div>
+                )
+            }
+            else{
+                return(
+                    <div style={{textAlign:"center"}}>
+                        <div>
+                            <h1 style={{color:'red'}}>Leader Board</h1>
+                            <h2 style={{color:'green'}} hidden={!you_topper}>Congrats you are a leader in your zone</h2>
+                            <img src={`${this.state.lead_obj.photo}`} height='100px' width='100px'/>
+                            <h3>{`${this.state.lead_obj.name}`}</h3>
+                            <h3>{`${this.state.lead_obj.score}`}</h3>
+                        </div>
+                        <h1 style={{color:'red'}}>Others</h1>
+                        {UI}
+                    </div>
+                )
+            }
     }
 }
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import './board.css';
 import axios from 'axios';
-import { Redirect } from 'react-router-dom';
-import cookie from 'react-cookies';
 
 const {backURL} = require('../../back_url');
 const {abhi} = require('./solution');
